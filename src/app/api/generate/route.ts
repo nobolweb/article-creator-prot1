@@ -1,14 +1,19 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
 export async function POST(req: NextRequest) {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return NextResponse.json({ error: "APIキーが設定されていません" }, { status: 500 });
+  }
+
   const { keywords } = await req.json();
 
   if (!keywords?.trim()) {
     return NextResponse.json({ error: "キーワードを入力してください" }, { status: 400 });
   }
+
+  const client = new Anthropic({ apiKey });
 
   const message = await client.messages.create({
     model: "claude-opus-4-8",
